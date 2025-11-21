@@ -1,15 +1,33 @@
 document.addEventListener('DOMContentLoaded', () => {
-  const button = document.getElementById('searchBtn');
+  const form   = document.getElementById('searchForm');
+  const input  = document.getElementById('search');
+  const result = document.getElementById('result');
 
-  button.addEventListener('click', () => {
-    fetch('superheroes.php')
-      .then(response => response.text())
+  form.addEventListener('submit', (event) => {
+    event.preventDefault(); 
+
+    const query = input.value.trim();
+    let url = 'superheroes.php';
+
+    if (query !== '') {
+      url += '?query=' + encodeURIComponent(query);
+    }
+
+    result.innerHTML = '<p>Loading…</p>';
+
+    fetch(url)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('HTTP ' + response.status);
+        }
+        return response.text();
+      })
       .then(data => {
-        alert(data);
+        result.innerHTML = data;
       })
       .catch(error => {
-        console.error('Error fetching superheroes:', error);
-        alert('Something went wrong fetching the list.');
+        console.error(error);
+        result.innerHTML = '<p>Something went wrong. Please try again.</p>';
       });
   });
 });
